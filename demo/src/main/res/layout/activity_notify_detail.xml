@@ -1,0 +1,49 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.githang.android.apnbb.demo.notify.NotifyDetailActivity">
+
+    <TextView
+        android:id="@+id/notify_title"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:layout_height="@dimen/title_view_height" />
+    <View
+        android:id="@+id/notify_divider"
+        android:layout_below="@id/notify_title"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:background="?android:attr/listDivider"/>
+    <RelativeLayout
+        android:layout_marginTop="@dimen/view_vertical_margin"
+        android:padding="@dimen/layout_padding"
+        android:layout_width="fill_parent"
+        android:layout_below="@id/notify_divider"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/notify_time"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/view_height"
+            android:textAppearance="@android:style/TextAppearance.Small"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:id="@+id/notify_msg"
+            android:layout_below="@id/notify_time"
+            android:textAppearance="@android:style/TextAppearance.Medium"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/notify_uri"
+            android:layout_below="@id/notify_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/view_height"
+            android:autoLink="all"
+            android:textAppearance="@android:style/TextAppearance.Medium"/>
+    </RelativeLayout>
+
+</RelativeLayout>

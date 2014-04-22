@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_marginTop="@dimen/list_item_vertical_margin"
+    android:layout_marginBottom="@dimen/list_item_vertical_margin"
+    android:layout_height="@dimen/list_item_height">
+    <TextView
+        android:id="@+id/notify_list_time"
+        android:layout_alignParentTop="true"
+        android:layout_width="100dp"
+        android:layout_marginTop="@dimen/list_item_vertical_margin"
+        android:layout_marginBottom="@dimen/list_item_vertical_margin"
+        android:layout_marginLeft="@dimen/list_item_horizontal_margin"
+        android:layout_marginRight="@dimen/list_item_horizontal_margin"
+        android:singleLine="true"
+        android:layout_alignParentRight="true"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/darker_gray"
+        android:textAppearance="@android:style/TextAppearance.Small"/>
+    <TextView
+        android:id="@+id/notify_list_title"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/list_item_vertical_margin"
+        android:layout_marginLeft="@dimen/list_item_horizontal_margin"
+        android:gravity="center_vertical|left"
+        android:singleLine="true"
+        android:layout_alignParentLeft="true"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:layout_width="fill_parent"
+        android:layout_toLeftOf="@id/notify_list_time"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:singleLine="true"
+        android:layout_marginLeft="@dimen/list_item_horizontal_margin"
+        android:layout_marginRight="@dimen/list_item_horizontal_margin"
+        android:layout_marginBottom="@dimen/list_item_vertical_margin"
+        android:id="@+id/notify_list_msg"
+        android:layout_below="@id/notify_list_title"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:textColor="@android:color/darker_gray"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content" />
+</RelativeLayout>

@@ -1,0 +1,39 @@
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 14
+    buildToolsVersion "19.0.1"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 14
+        versionCode 14
+        versionName "0.7"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+tasks.withType(Compile) {
+    options.encoding = "UTF-8"
+}
+dependencies {
+    compile 'com.android.support:appcompat-v7:+'
+    // You must install or update the Google Repository through the SDK manager to use this dependency.
+    // The Google Repository (separate from the corresponding library) can be found in the Extras category.
+    // compile 'com.google.android.gms:play-services:4.0.30'
+    compile 'com.android.support:support-v4:19.+'
+    // You must install or update the Google Repository through the SDK manager to use this dependency.
+    // The Google Repository (separate from the corresponding library) can be found in the Extras category.
+    //
+    compile project(':androidpn')
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+}
