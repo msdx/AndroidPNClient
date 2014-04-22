@@ -45,10 +45,6 @@ public class XmppManager {
 
     private Context context;
 
-    private NotificationService.TaskSubmitter taskSubmitter;
-
-    private NotificationService.TaskTracker taskTracker;
-
     private SharedPreferences sharedPrefs;
 
     private XMPPConnection connection;
@@ -68,8 +64,6 @@ public class XmppManager {
         XmppConnectReceiver.initInstance(context, this);
 
         appName = context.getPackageManager().getApplicationLabel(context.getApplicationInfo()).toString();
-        taskSubmitter = notificationService.getTaskSubmitter();
-        taskTracker = notificationService.getTaskTracker();
         sharedPrefs = context.getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
                 Context.MODE_PRIVATE);
         connectionListener = new PersistentConnectionListener(this);

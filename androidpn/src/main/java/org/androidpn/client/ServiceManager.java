@@ -67,13 +67,6 @@ public final class ServiceManager {
             callbackActivityClassName = callbackActivity.getClass().getName();
         }
 
-        //        apiKey = getMetaDataValue("ANDROIDPN_API_KEY");
-        //        Log.i(LOGTAG, "apiKey=" + apiKey);
-        //        //        if (apiKey == null) {
-        //        //            Log.e(LOGTAG, "Please set the androidpn api key in the manifest file.");
-        //        //            throw new RuntimeException();
-        //        //        }
-
         props = loadProperties();
         apiKey = props.getProperty(Constants.PROP_API_KEY, "");
         xmppHost = props.getProperty(Constants.PROP_XMPP_HOST, Constants.DEFAULT_HOST);
@@ -122,32 +115,6 @@ public final class ServiceManager {
         context.stopService(intent);
     }
 
-    //    private String getMetaDataValue(String name, String def) {
-    //        String value = getMetaDataValue(name);
-    //        return (value == null) ? def : value;
-    //    }
-    //
-    //    private String getMetaDataValue(String name) {
-    //        Object value = null;
-    //        PackageManager packageManager = context.getPackageManager();
-    //        ApplicationInfo applicationInfo;
-    //        try {
-    //            applicationInfo = packageManager.getApplicationInfo(context
-    //                    .getPackageName(), 128);
-    //            if (applicationInfo != null && applicationInfo.metaData != null) {
-    //                value = applicationInfo.metaData.get(name);
-    //            }
-    //        } catch (NameNotFoundException e) {
-    //            throw new RuntimeException(
-    //                    "Could not read the name in the manifest file.", e);
-    //        }
-    //        if (value == null) {
-    //            throw new RuntimeException("The name '" + name
-    //                    + "' is not defined in the manifest file's meta data.");
-    //        }
-    //        return value.toString();
-    //    }
-
     private Properties loadProperties() {
         Properties props = new Properties();
         try {
@@ -159,14 +126,6 @@ public final class ServiceManager {
         }
         return props;
     }
-
-    //    public String getVersion() {
-    //        return version;
-    //    }
-    //
-    //    public String getApiKey() {
-    //        return apiKey;
-    //    }
 
     public void setNotificationIcon(int iconId) {
         Editor editor = sharedPrefs.edit();

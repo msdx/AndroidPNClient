@@ -62,8 +62,6 @@ public class Constants {
 
     public static final String XMPP_PASSWORD = "XMPP_PASSWORD";
 
-    // public static final String USER_KEY = "USER_KEY";
-
     public static final String DEVICE_ID = "DEVICE_ID";
 
     public static final String EMULATOR_DEVICE_ID = "EMULATOR_DEVICE_ID";
@@ -89,8 +87,6 @@ public class Constants {
     public static final String NOTIFICATION_MESSAGE = "NOTIFICATION_MESSAGE";
 
     public static final String NOTIFICATION_URI = "NOTIFICATION_URI";
-
-    public static final String NOTIFICATION_TIME = "NOTIFICATION_TIME";
 
     public static final String PACKET_ID = "PACKET_ID";
 

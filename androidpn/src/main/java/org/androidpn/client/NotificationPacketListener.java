@@ -54,9 +54,7 @@ public class NotificationPacketListener implements PacketListener {
                 String notificationApiKey = notification.getApiKey();
                 String notificationTitle = notification.getTitle();
                 String notificationMessage = notification.getMessage();
-                //                String notificationTicker = notification.getTicker();
                 String notificationUri = notification.getUri();
-                String notificationFrom = notification.getFrom();
                 String packetId = notification.getPacketID();
 
                 Intent intent = new Intent(Constants.ACTION_SHOW_NOTIFICATION);
@@ -70,10 +68,6 @@ public class NotificationPacketListener implements PacketListener {
                         notificationMessage);
                 intent.putExtra(Constants.NOTIFICATION_URI, notificationUri);
                 intent.putExtra(Constants.PACKET_ID, packetId);
-                //                intent.setData(Uri.parse((new StringBuilder(
-                //                        "notif://notification.androidpn.org/")).append(
-                //                        notificationApiKey).append("/").append(
-                //                        System.currentTimeMillis()).toString()));
                 Intent receiptIntent = new Intent(BroadcastUtil.APN_ACTION_RECEIPT);
                 receiptIntent.putExtra(Constants.INTENT_EXTRA_IQ, notification);
                 BroadcastUtil.sendBroadcast(xmppManager.getContext(), receiptIntent);

@@ -77,14 +77,6 @@ public class NotificationDetailsActivity extends Activity {
         Log.d(LOGTAG, "notificationMessage=" + notificationMessage);
         Log.d(LOGTAG, "notificationUri=" + notificationUri);
 
-        //        Display display = getWindowManager().getDefaultDisplay();
-        //        View rootView;
-        //        if (display.getWidth() > display.getHeight()) {
-        //            rootView = null;
-        //        } else {
-        //            rootView = null;
-        //        }
-
         View rootView = createView(notificationTitle, notificationMessage,
                 notificationUri);
         setContentView(rootView);
@@ -105,7 +97,6 @@ public class NotificationDetailsActivity extends Activity {
         TextView textTitle = new TextView(this);
         textTitle.setText(title);
         textTitle.setTextSize(18);
-        // textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
         textTitle.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         textTitle.setTextColor(0xff000000);
         textTitle.setGravity(Gravity.CENTER);
@@ -120,7 +111,6 @@ public class NotificationDetailsActivity extends Activity {
         TextView textDetails = new TextView(this);
         textDetails.setText(message);
         textDetails.setTextSize(14);
-        // textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         textDetails.setTextColor(0xff333333);
         textDetails.setGravity(Gravity.CENTER);
 
@@ -151,9 +141,6 @@ public class NotificationDetailsActivity extends Activity {
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    // intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    // intent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-                    // intent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
                 }
 
                 NotificationDetailsActivity.this.startActivity(intent);
@@ -169,23 +156,5 @@ public class NotificationDetailsActivity extends Activity {
 
         return linearLayout;
     }
-
-    //    protected void onPause() {
-    //        super.onPause();
-    //        finish();
-    //    }
-    //
-    //    protected void onStop() {
-    //        super.onStop();
-    //        finish();
-    //    }
-    //
-    //    protected void onSaveInstanceState(Bundle outState) {
-    //        super.onSaveInstanceState(outState);
-    //    }
-    //
-    //    protected void onNewIntent(Intent intent) {
-    //        setIntent(intent);
-    //    }
 
 }

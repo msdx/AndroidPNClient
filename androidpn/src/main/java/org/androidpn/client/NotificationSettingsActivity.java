@@ -64,10 +64,6 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 
         PreferenceScreen root = preferenceManager.createPreferenceScreen(this);
 
-        //        PreferenceCategory prefCat = new PreferenceCategory(this);
-        //        // inlinePrefCat.setTitle("");
-        //        root.addPreference(prefCat);
-
         CheckBoxPreference notifyPref = new CheckBoxPreference(this);
         notifyPref.setKey(Constants.SETTINGS_NOTIFICATION_ENABLED);
         notifyPref.setTitle("Notifications Enabled");
@@ -93,23 +89,17 @@ public class NotificationSettingsActivity extends PreferenceActivity {
         soundPref.setTitle("Sound");
         soundPref.setSummary("Play a sound for notifications");
         soundPref.setDefaultValue(Boolean.TRUE);
-        // soundPref.setDependency(Constants.SETTINGS_NOTIFICATION_ENABLED);
 
         CheckBoxPreference vibratePref = new CheckBoxPreference(this);
         vibratePref.setKey(Constants.SETTINGS_VIBRATE_ENABLED);
         vibratePref.setTitle("Vibrate");
         vibratePref.setSummary("Vibrate the phone for notifications");
         vibratePref.setDefaultValue(Boolean.TRUE);
-        // vibratePref.setDependency(Constants.SETTINGS_NOTIFICATION_ENABLED);
 
         root.addPreference(notifyPref);
         root.addPreference(soundPref);
         root.addPreference(vibratePref);
 
-        //        prefCat.addPreference(notifyPref);
-        //        prefCat.addPreference(soundPref);
-        //        prefCat.addPreference(vibratePref);
-        //        root.addPreference(prefCat);
 
         return root;
     }

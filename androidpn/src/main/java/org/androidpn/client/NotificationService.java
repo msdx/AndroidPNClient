@@ -52,10 +52,6 @@ public class NotificationService extends Service {
 
     private TelephonyManager telephonyManager;
 
-    //    private WifiManager wifiManager;
-    //
-    //    private ConnectivityManager connectivityManager;
-
     private BroadcastReceiver notificationReceiver;
 
     private BroadcastReceiver connectivityReceiver;
@@ -92,15 +88,12 @@ public class NotificationService extends Service {
     public void onCreate() {
         Log.d(LOGTAG, "onCreate()...");
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        // wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        // connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
                 Context.MODE_PRIVATE);
 
         // Get deviceId
         deviceId = telephonyManager.getDeviceId();
-        // Log.d(LOGTAG, "deviceId=" + deviceId);
         Editor editor = sharedPrefs.edit();
         editor.putString(Constants.DEVICE_ID, deviceId);
         editor.commit();
@@ -274,8 +267,6 @@ public class NotificationService extends Service {
         Log.d(LOGTAG, "start()...");
         registerNotificationReceiver();
         registerConnectivityReceiver();
-        // Intent intent = getIntent();
-        // startService(intent);
         xmppManager.connect();
     }
 
