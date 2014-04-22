@@ -37,7 +37,7 @@ public final class NotifyReceiver extends BroadcastReceiver {
     private static final String LOGTAG = LogUtil
             .makeLogTag(NotifyReceiver.class);
 
-    public static final String ACTION_SHOW_NOTIFICATION= "cn.irains.pushdemo.app.SHOW_NOTIFICATION";
+    public static final String ACTION_SHOW_NOTIFICATION= "com.githang.android.apnbb.demo.SHOW_NOTIFICATION";
 
     public NotifyReceiver() {
     }

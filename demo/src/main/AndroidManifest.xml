@@ -74,7 +74,7 @@
         <receiver android:name="com.githang.android.apnbb.demo.notify.NotifyReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="cn.irains.pushdemo.app.SHOW_NOTIFICATION" />
+                <action android:name="com.githang.android.apnbb.demo.SHOW_NOTIFICATION" />
             </intent-filter>
         </receiver>
 
