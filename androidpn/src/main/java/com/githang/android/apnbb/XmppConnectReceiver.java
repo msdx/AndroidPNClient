@@ -15,6 +15,7 @@ import org.androidpn.client.NotificationIQ;
 import org.androidpn.client.NotificationIQProvider;
 import org.androidpn.client.XmppManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -27,6 +28,7 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Registration;
 import org.jivesoftware.smack.provider.ProviderManager;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -44,22 +46,17 @@ public class XmppConnectReceiver extends BroadcastReceiver {
     private SharedPreferences sharedPrefs;
     private String xmppHost;
     private int xmppPort;
-    private String username;
-    private String password;
-    private Runnable connectTask;
-    private Runnable registerTask;
-    private Runnable loginTask;
     private Runnable disconnectTask;
     private Runnable reconnectTask;
+    private Runnable loginServerTask;
     private boolean isConnecting;
+
 
     private XmppConnectReceiver(Context context, XmppManager xmppManager) {
         this.context = context;
         this.xmppManager = xmppManager;
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
         IntentFilter filter = new IntentFilter();
-        filter.addAction(BroadcastUtil.APN_ACTION_CONNECT);
-        filter.addAction(BroadcastUtil.APN_ACTION_REGISTER);
         filter.addAction(BroadcastUtil.APN_ACTION_LOGIN);
         filter.addAction(BroadcastUtil.APN_ACTION_RECONNECT);
         filter.addAction(BroadcastUtil.APN_ACTION_REQUEST_STATUS);
@@ -73,17 +70,15 @@ public class XmppConnectReceiver extends BroadcastReceiver {
 
         xmppHost = sharedPrefs.getString(Constants.XMPP_HOST, "localhost");
         xmppPort = sharedPrefs.getInt(Constants.XMPP_PORT, 5222);
-        username = sharedPrefs.getString(Constants.XMPP_USERNAME, "");
-        password = sharedPrefs.getString(Constants.XMPP_PASSWORD, "");
+
 
         HandlerThread thread = new HandlerThread(XmppConnectReceiver.class.getSimpleName());
         thread.start();
         handler = new Handler(thread.getLooper());
-        connectTask = new ConnectTask();
-        registerTask = new RegisterTask();
-        loginTask = new LoginTask();
         disconnectTask = new DisconnectTask();
         reconnectTask = new ReconnectTask();
+
+        loginServerTask = new LoginServer();
 
     }
 
@@ -101,11 +96,7 @@ public class XmppConnectReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         Log.d(LOG_TAG, action);
-        if (BroadcastUtil.APN_ACTION_CONNECT.equals(action)) {
-            doConnect();
-        } else if (BroadcastUtil.APN_ACTION_REGISTER.equals(action)) {
-            doRegister();
-        } else if (BroadcastUtil.APN_ACTION_LOGIN.equals(action)) {
+        if (BroadcastUtil.APN_ACTION_LOGIN.equals(action)) {
             doLogin();
         } else if (BroadcastUtil.APN_ACTION_RECONNECT.equals(action)) {
             doReconnect();
@@ -130,22 +121,12 @@ public class XmppConnectReceiver extends BroadcastReceiver {
         Log.d(LOG_TAG, "receipt" + iq.toString());
     }
 
-    private void doConnect() {
-        handler.removeCallbacks(connectTask);
-        handler.postAtFrontOfQueue(connectTask);
-    }
-
-    private void doRegister() {
-        handler.removeCallbacks(registerTask);
-        handler.post(registerTask);
-    }
-
     private void doLogin() {
         if (xmppManager.isAuthenticated()) {
             return;
         }
-        handler.removeCallbacks(loginTask);
-        handler.post(loginTask);
+        handler.removeCallbacks(loginServerTask);
+        handler.post(loginServerTask);
     }
 
     private void doReconnect() {
@@ -153,9 +134,7 @@ public class XmppConnectReceiver extends BroadcastReceiver {
     }
 
     private void doDisconnect() {
-        handler.removeCallbacks(connectTask);
-        handler.removeCallbacks(registerTask);
-        handler.removeCallbacks(loginTask);
+        handler.removeCallbacks(loginServerTask);
         handler.post(disconnectTask);
     }
 
@@ -192,13 +171,45 @@ public class XmppConnectReceiver extends BroadcastReceiver {
     /**
      * A runnable task to connect the server.
      */
-    private class ConnectTask implements Runnable {
+    private class LoginServer implements Runnable {
+        private static final int REGISTER_TIME_OUT = 60000;
 
-        private ConnectTask() {
+        private LoginServer() {
         }
 
         public void run() {
+            final String uuid = UUID.randomUUID().toString();
+            // 密码也设成UUID，以使应用程序清除数据之后，再注册的用户username是一样的。
+            final String newUsername = uuid;
+            final String newPassword = uuid;
             isConnecting = true;
+            boolean isSuccess = false;
+            if(connect()) {
+                if(register(newUsername, newPassword)) {
+                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                    editor.putString(Constants.XMPP_USERNAME,
+                            newUsername);
+                    editor.putString(Constants.XMPP_PASSWORD,
+                            newPassword);
+                    editor.commit();
+                    String username = sharedPrefs.getString(Constants.XMPP_USERNAME, "");
+                    String password = sharedPrefs.getString(Constants.XMPP_PASSWORD, "");
+                    if(login(username, password)) {
+                        isSuccess = true;
+                        BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGINED);
+                    } else {
+                    }
+                }
+            } else {
+                BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_CONNECT_FAILED);
+            }
+            isConnecting = false;
+            if(!isSuccess) {
+                BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_RECONNECT);
+            }
+        }
+
+        private boolean connect() {
             Log.i(LOG_TAG, "ConnectTask.run()...");
             if (!xmppManager.isConnected()) {
                 BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_CONNECTING);
@@ -234,168 +245,113 @@ public class XmppConnectReceiver extends BroadcastReceiver {
                                     new NotificationIQProvider());
                         }
                     }
+                    return true;
                 } catch (XMPPException e) {
                     Log.e(LOG_TAG, "XMPP connection failed", e);
-                    BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_CONNECT_FAILED);
+                    return false;
                 }
             } else {
                 Log.i(LOG_TAG, "XMPP connected already");
+                return true;
             }
-            isConnecting = false;
-        }
-    }
-
-    /**
-     * A runnable task to register a new user onto the server.
-     */
-    private class RegisterTask implements Runnable {
-
-        private RegisterTask() {
         }
 
-        public void run() {
-            isConnecting = true;
+        public boolean register(String user, String pass) {
             Log.i(LOG_TAG, "RegisterTask.run()...");
 
-            if (!xmppManager.isRegistered()) {
-                final String uuid = UUIDUtil.getID(context);
-                // 密码也设成UUID，以使应用程序清除数据之后，再注册的用户username是一样的。
-                final String newUsername = uuid;
-                final String newPassword = uuid;
-
-                final Registration registration = new Registration();
-
-                PacketFilter packetFilter = new AndFilter(new PacketIDFilter(
-                        registration.getPacketID()), new PacketTypeFilter(
-                        IQ.class));
-
-                PacketListener packetListener = new PacketListener() {
-
-                    public void processPacket(Packet packet) {
-                        Log.d("RegisterTask.PacketListener",
-                                "processPacket().....");
-                        Log.d("RegisterTask.PacketListener", "packet="
-                                + packet.toXML());
-
-
-                        if (packet instanceof IQ) {
-                            IQ response = (IQ) packet;
-                            // 用于判断是否注册。如果已经注册过，会返回一个409错误（表示冲突）。
-                            String responseStr = null;
-                            if (response.getType() == IQ.Type.ERROR) {
-                                responseStr = response.getError().toString();
-                                if (!responseStr.contains("409")) {
-                                    Log.e(LOG_TAG,
-                                            "Unknown error while registering XMPP account! "
-                                                    + response.getError()
-                                                    .getCondition()
-                                    );
-                                }
-                            }
-                            if (response.getType() == IQ.Type.RESULT || (responseStr != null && responseStr.contains("409"))) {
-                                username = newUsername;
-                                password = newPassword;
-                                Log.d(LOG_TAG, "username=" + username);
-                                Log.d(LOG_TAG, "password=" + password);
-
-                                SharedPreferences.Editor editor = sharedPrefs.edit();
-                                editor.putString(Constants.XMPP_USERNAME,
-                                        username);
-                                editor.putString(Constants.XMPP_PASSWORD,
-                                        password);
-                                editor.commit();
-                                Log.i(LOG_TAG, "Account registered successfully");
-                            }
-                        }
-                    }
-                };
-
-                xmppManager.getConnection().addPacketListener(packetListener, packetFilter);
-
-                registration.setType(IQ.Type.SET);
-                registration.addAttribute("username", newUsername);
-                registration.addAttribute("password", newPassword);
-                if(xmppManager.getConnection().isConnected()) {
-                    xmppManager.getConnection().sendPacket(registration);
-                } else {
-                    Log.d(LOG_TAG, "connection is not connected");
-                }
-
-            } else {
+            if (xmppManager.isRegistered()) {
                 Log.i(LOG_TAG, "Account registered already");
+                return true;
             }
-            isConnecting = false;
-        }
-    }
 
-    /**
-     * A runnable task to log into the server.
-     */
-    private class LoginTask implements Runnable {
-        private LoginTask() {
-        }
+            final Registration registration = new Registration();
 
-        public void run() {
-            Log.i(LOG_TAG, "LoginTask.run()...");
-            isConnecting = true;
+            PacketFilter packetFilter = new AndFilter(new PacketIDFilter(
+                    registration.getPacketID()), new PacketTypeFilter(
+                    IQ.class));
 
-            if (!xmppManager.isAuthenticated()) {
-                BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGINING);
-                try {
-                    xmppManager.getConnection().login(
-                            username,
-                            password, XmppManager.XMPP_RESOURCE_NAME);
-                    Log.d(LOG_TAG, "Loggedn in successfully");
-                    BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGIN_SUCCESS);
-
-                    // connection listener
-                    if (xmppManager.getConnectionListener() != null) {
-                        xmppManager.getConnection().addConnectionListener(
-                                xmppManager.getConnectionListener());
-                    }
-                    PacketFilter packetFilter = null;
-                    if (NotifierConfig.iq == null) {
-                        // packet filter
-                        packetFilter = new PacketTypeFilter(
-                                NotificationIQ.class);
+            PacketCollector collector = xmppManager.getConnection().createPacketCollector(packetFilter);
+            registration.setType(IQ.Type.SET);
+            registration.addAttribute("username", user);
+            registration.addAttribute("password", pass);
+            if (xmppManager.getConnection().isConnected()) {
+                xmppManager.getConnection().sendPacket(registration);
+                IQ result = (IQ) collector.nextResult(REGISTER_TIME_OUT);
+                collector.cancel();
+                if(result == null) {
+                    Log.d(LOG_TAG, "The server didn't return result after 60 seconds.");
+                    return false;
+                } else if (result.getType() == IQ.Type.ERROR) {
+                    if(result.getError().toString().contains("409")) {
+                        return true;
                     } else {
-                        packetFilter = new PacketTypeFilter(Class.forName(NotifierConfig.iq));
+                        return false;
                     }
-                    // packet listener
-                    PacketListener packetListener = xmppManager
-                            .getPacketListener();
-                    xmppManager.getConnection().addPacketListener(packetListener, packetFilter);
-
-                    xmppManager.getConnection().startKeepAliveThread(xmppManager);
-
-                } catch (XMPPException e) {
-                    BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGIN_FAIL);
-                    Log.e(LOG_TAG, "LoginTask.run()... xmpp error");
-                    Log.e(LOG_TAG, "Failed to login to xmpp server. Caused by: "
-                            + e.getMessage(), e);
-                    String INVALID_CREDENTIALS_ERROR_CODE = "401";
-                    String errorMessage = e.getMessage();
-                    if (errorMessage != null
-                            && errorMessage.contains(INVALID_CREDENTIALS_ERROR_CODE)) {
-                        xmppManager.reregisterAccount();
-                        return;
-                    }
-                    isConnecting = false;
-                    BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_RECONNECT);
-
-                } catch (Exception e) {
-                    BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGIN_FAIL);
-                    Log.e(LOG_TAG, "LoginTask.run()... other error");
-                    Log.e(LOG_TAG, "Failed to login to xmpp server. Caused by: "
-                            + e.getMessage());
-                    isConnecting = false;
-                    BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_RECONNECT);
+                } else if (result.getType() == IQ.Type.RESULT) {
+                    return true;
                 }
+                return false;
             } else {
-                Log.i(LOG_TAG, "Logged in already");
-                BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGINED);
+                Log.d(LOG_TAG, "connection is not connected");
+                return false;
             }
-            isConnecting = false;
+        }
+
+        public boolean login(String user, String pass) {
+            Log.i(LOG_TAG, "LoginTask.run()...");
+
+            if (xmppManager.isAuthenticated()) {
+                Log.i(LOG_TAG, "Logged in already");
+                return true;
+            }
+
+            BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGINING);
+            try {
+                xmppManager.getConnection().login(
+                        user,
+                        pass, XmppManager.XMPP_RESOURCE_NAME);
+                Log.d(LOG_TAG, "Loggedn in successfully");
+                BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGIN_SUCCESS);
+
+                // connection listener
+                if (xmppManager.getConnectionListener() != null) {
+                    xmppManager.getConnection().addConnectionListener(
+                            xmppManager.getConnectionListener());
+                }
+                PacketFilter packetFilter = null;
+                if (NotifierConfig.iq == null) {
+                    // packet filter
+                    packetFilter = new PacketTypeFilter(
+                            NotificationIQ.class);
+                } else {
+                    packetFilter = new PacketTypeFilter(Class.forName(NotifierConfig.iq));
+                }
+                // packet listener
+                PacketListener packetListener = xmppManager
+                        .getPacketListener();
+                xmppManager.getConnection().addPacketListener(packetListener, packetFilter);
+                xmppManager.getConnection().startKeepAliveThread(xmppManager);
+                return true;
+
+            } catch (XMPPException e) {
+                BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGIN_FAIL);
+                Log.e(LOG_TAG, "LoginTask.run()... xmpp error");
+                Log.e(LOG_TAG, "Failed to login to xmpp server. Caused by: "
+                        + e.getMessage(), e);
+                String INVALID_CREDENTIALS_ERROR_CODE = "401";
+                String errorMessage = e.getMessage();
+                if (errorMessage != null
+                        && errorMessage.contains(INVALID_CREDENTIALS_ERROR_CODE)) {
+                    xmppManager.reregisterAccount();
+                }
+                return false;
+            } catch (Exception e) {
+                BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_STATUS_LOGIN_FAIL);
+                Log.e(LOG_TAG, "LoginTask.run()... other error");
+                Log.e(LOG_TAG, "Failed to login to xmpp server. Caused by: "
+                        + e.getMessage());
+                return false;
+            }
         }
     }
 
@@ -429,8 +385,6 @@ public class XmppConnectReceiver extends BroadcastReceiver {
                 e.printStackTrace();
             }
 
-            BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_CONNECT);
-            BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_REGISTER);
             BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_LOGIN);
 
             DelayTime.increase();

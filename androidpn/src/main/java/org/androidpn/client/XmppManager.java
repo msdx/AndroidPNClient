@@ -160,20 +160,8 @@ public class XmppManager {
                 && sharedPrefs.contains(Constants.XMPP_PASSWORD);
     }
 
-    private void submitConnectTask() {
-        Log.d(LOGTAG, "submitConnectTask()...");
-        BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_CONNECT);
-    }
-
-    private void submitRegisterTask() {
-        Log.d(LOGTAG, "submitRegisterTask()...");
-        submitConnectTask();
-        BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_REGISTER);
-    }
-
     private void submitLoginTask() {
         Log.d(LOGTAG, "submitLoginTask()...");
-        submitRegisterTask();
         BroadcastUtil.sendBroadcast(context, BroadcastUtil.APN_ACTION_LOGIN);
     }
 
