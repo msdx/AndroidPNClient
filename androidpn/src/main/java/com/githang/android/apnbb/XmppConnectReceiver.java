@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
+ * XMLPP连接的控制类，控制连接、注册、登录、重连、响应连接状态及回执等。
  * Created by msdx on 14-4-17.
  */
 public class XmppConnectReceiver extends BroadcastReceiver {
@@ -294,14 +295,14 @@ public class XmppConnectReceiver extends BroadcastReceiver {
                             if (response.getType() == IQ.Type.RESULT || (responseStr != null && responseStr.contains("409"))) {
                                 username = newUsername;
                                 password = newPassword;
-                                Log.d(LOG_TAG, "username=" + newUsername);
-                                Log.d(LOG_TAG, "password=" + newPassword);
+                                Log.d(LOG_TAG, "username=" + username);
+                                Log.d(LOG_TAG, "password=" + password);
 
                                 SharedPreferences.Editor editor = sharedPrefs.edit();
                                 editor.putString(Constants.XMPP_USERNAME,
-                                        newUsername);
+                                        username);
                                 editor.putString(Constants.XMPP_PASSWORD,
-                                        newPassword);
+                                        password);
                                 editor.commit();
                                 Log.i(LOG_TAG, "Account registered successfully");
                             }

@@ -176,7 +176,7 @@ public class NotificationService extends Service {
     private final void acquireWakeLock() {
         if(mWakeLock == null) {
             PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICE_NAME);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getPackageName());
         }
         if(mWakeLock != null) {
             mWakeLock.acquire();
