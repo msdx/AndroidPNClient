@@ -24,7 +24,7 @@ import com.githang.android.apnbb.BroadcastUtil;
 import com.githang.android.apnbb.NetworkUtil;
 
 /** 
- * A broadcast receiver to handle the changes in network connectiion states.
+ * A broadcast receiver to handle the changes in network connection states.
  *
  * @author Sehwan Noh (devnoh@gmail.com)
  */

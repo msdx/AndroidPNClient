@@ -48,8 +48,6 @@ public class NotificationService extends Service {
     private static final String LOGTAG = LogUtil
             .makeLogTag(NotificationService.class);
 
-    public static final String SERVICE_NAME = "org.androidpn.client.NotificationService";
-
     private TelephonyManager telephonyManager;
 
     private BroadcastReceiver notificationReceiver;
@@ -176,7 +174,7 @@ public class NotificationService extends Service {
     private final void acquireWakeLock() {
         if(mWakeLock == null) {
             PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, SERVICE_NAME);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getPackageName());
         }
         if(mWakeLock != null) {
             mWakeLock.acquire();
