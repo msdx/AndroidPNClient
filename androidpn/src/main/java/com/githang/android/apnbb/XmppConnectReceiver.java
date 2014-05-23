@@ -178,7 +178,7 @@ public class XmppConnectReceiver extends BroadcastReceiver {
         }
 
         public void run() {
-            final String uuid = UUID.randomUUID().toString();
+            final String uuid = UUIDUtil.getID(context);
             // 密码也设成UUID，以使应用程序清除数据之后，再注册的用户username是一样的。
             final String newUsername = uuid;
             final String newPassword = uuid;
